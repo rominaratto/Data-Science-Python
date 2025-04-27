@@ -18,4 +18,4 @@ folium==0.19.5
 branca==0.8.1
 openpyxl==3.1.0
 streamlit==1.44.1
-streamlit-folium 0.25.0
+streamlit-folium==0.25.0
