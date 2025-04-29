@@ -290,12 +290,12 @@ with tab5:
     # Filtrar solo Ica
     primarias_ica = schools_geo[
         (schools_geo['Nivel'].str.contains("primaria", case=False, na=False)) &
-        (schools_geo['Departamento'].str.upper() == 'ICA')
+        (schools_geo['Ubigeo'].astype(str).str.startswith('11'))
     ].copy()
     
     secundarias_ica = schools_geo[
         (schools_geo['Nivel'].str.contains("secundaria", case=False, na=False)) &
-        (schools_geo['Departamento'].str.upper() == 'ICA')
+        (schools_geo['Ubigeo'].astype(str).str.startswith('11'))   
     ].copy()
     
     # Crear geometría
