@@ -353,8 +353,7 @@ with tab5:
     ).add_to(m)
     
     # Mostrar mapa
-    m
-    
+    folium_static(m, width=1200, height=700)
     
     
     
