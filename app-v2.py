@@ -233,57 +233,7 @@ with tab5:
     
     plt.tight_layout()
     st.pyplot(fig)
-
-with tab5:
-    st.header("📊 Distribución de secundarias en el departamento de Ica")
     
-    # Asegurarte de que los IDs estén en el formato correcto
-    schools_geo['Ubigeo'] = schools_geo['Ubigeo'].astype(str).str.zfill(6)
-    districts['IDDIST'] = districts['IDDIST'].astype(str).str.zfill(6)
-    schools_geo['Nivel'] = schools_geo['Nivel'].str.lower()
-
-    # Definir el nivel educativo que quieres visualizar 
-    nivel = 'secundaria'  # 'inicial' o 'primaria'
-
-    # Filtrar solo colegios de ese nivel
-    filtered = schools_geo[schools_geo['Nivel'].str.contains(nivel, case=False, na=False)]
-
-    # Filtrar usando esas columnas (convierte a mayúsculas para asegurar coincidencia)
-    districts_ica = districts[districts[DEPARTAMEN].str.upper() == 'ICA']
-
-    # Conteo por distrito dentro de Ica
-    conteo = escuelas.groupby('Ubigeo').size().reset_index(name='Total_Colegios')
-    conteo_ica = conteo[conteo['Ubigeo'].isin(districts_ica['IDDIST'])]
-
-    # Merge shapefile ICA + conteo
-    districts_plot_ica = districts_ica.merge(conteo_ica, left_on='IDDIST', right_on='Ubigeo', how='left')
-    districts_plot_ica['Total_Colegios'] = districts_plot_ica['Total_Colegios'].fillna(0).astype(int)
-
-    # Graficar
-    fig, ax = plt.subplots(figsize=(10, 10))
-    districts_plot_ica.plot(
-        column='Total_Colegios',
-        cmap='Reds',
-        linewidth=0.5,
-        edgecolor='black',
-        legend=True,
-        ax=ax
-    )
-
-    # Título y estilo
-    ax.set_title(f'Distribución de colegios {nivel.capitalize()} en el Departamento de Ica', fontsize=16)
-    ax.axis('off')
-
-    # Agregar etiquetas con los valores sobre cada distrito
-    for idx, row in districts_plot.iterrows():
-        if row['Total_Colegios'] > 0:  # Solo etiquetar distritos con colegios
-            centroid = row['geometry'].centroid
-            ax.text(centroid.x, centroid.y, int(row['Total_Colegios']),
-                    ha='center', va='center', fontsize=8, color='black')
-
-    plt.tight_layout()
-    plt.show()
- 
 with tab5:
     st.header("📊 Panorama escolar en Ica: Identificación de escuelas primarias con mayor y menor cantidad de escuelas secundarias cerca")
         
