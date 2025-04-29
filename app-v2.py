@@ -247,21 +247,13 @@ with tab5:
 
     # Filtrar solo colegios de ese nivel
     filtered = schools_geo[schools_geo['Nivel'].str.contains(nivel, case=False, na=False)]
+    
+    st.write(schools_geo.head())
+    st.write(districts.head())
 
-    # Función auxiliar para encontrar la primera columna que empiece con 'departamen'
-    def get_departamento_col(df):
-        for col in df.columns:
-            if col.strip().lower().startswith('departamen'):
-                return col
-        raise KeyError("No se encontró una columna que represente el departamento.")
-    
-    # Buscar el nombre correcto de la columna en cada DataFrame
-    col_dep_schools = get_departamento_col(schools_geo)
-    col_dep_districts = get_departamento_col(districts)
-    
     # Filtrar usando esas columnas (convierte a mayúsculas para asegurar coincidencia)
-    filtered = schools_geo[schools_geo[col_dep_schools].str.upper() == 'ICA']
-    districts_ica = districts[districts[col_dep_districts].str.upper() == 'ICA']
+    filtered = schools_geo[schools_geo[Departamento].str.upper() == 'ICA']
+    districts_ica = districts[districts[DEPARTAMEN].str.upper() == 'ICA']
 
     # Conteo por distrito dentro de Ica
     conteo = filtered.groupby('Ubigeo').size().reset_index(name='Total_Colegios')
