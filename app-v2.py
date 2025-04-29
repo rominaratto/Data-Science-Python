@@ -247,16 +247,12 @@ with tab5:
 
     # Filtrar solo colegios de ese nivel
     filtered = schools_geo[schools_geo['Nivel'].str.contains(nivel, case=False, na=False)]
-    
-    st.write(schools_geo.head())
-    st.write(districts.head())
 
     # Filtrar usando esas columnas (convierte a mayúsculas para asegurar coincidencia)
-    filtered = schools_geo[schools_geo[Departamento].str.upper() == 'ICA']
     districts_ica = districts[districts[DEPARTAMEN].str.upper() == 'ICA']
 
     # Conteo por distrito dentro de Ica
-    conteo = filtered.groupby('Ubigeo').size().reset_index(name='Total_Colegios')
+    conteo = escuelas.groupby('Ubigeo').size().reset_index(name='Total_Colegios')
     conteo_ica = conteo[conteo['Ubigeo'].isin(districts_ica['IDDIST'])]
 
     # Merge shapefile ICA + conteo
