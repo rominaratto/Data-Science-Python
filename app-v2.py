@@ -366,7 +366,15 @@ with tab5:
             fill=True,
             fill_opacity=0.2
         ).add_to(m)
-        
+    # Círculo grande visual para "recorte" (fondo)
+    folium.Circle(
+        location=[center_lat, center_lon],
+        radius=100000,  # 100 km de radio
+        color=None,
+        fill=True,
+        fill_opacity=0.07
+    ).add_to(m)  
+    
     # Marcador para mi colegio
     folium.Marker(
         location=[-14.08831, -75.75128],
