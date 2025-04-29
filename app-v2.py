@@ -187,48 +187,54 @@ with tab4:
 # ============================================================
 
 with tab5:
-    st.header("📊 Descripción de datos de escuelas en Ica")
+
+with tab5:
+    # --- CONFIGURACIÓN DE STREAMLIT ---
+    st.markdown("<h1 style='color:white;'>📊 Descripción de los Datos</h1>", unsafe_allow_html=True)
+    
+    # --- FILTRAR SOLO ICA ---
     filtered_schools_1 = schools_geo[
-        (schools_geo['Departamento'].str.contains('ICA', case=False, na=False)) ]
-    filtered_schools_1
-
-    escuelas = filtered_schools_1
-
-    import pandas as pd
-    import matplotlib.pyplot as plt
-
-    # Filtrar niveles de interés
+        schools_geo['Departamento'].str.upper().str.contains('ICA', na=False)
+    ]
+    escuelas = filtered_schools_1.copy()
+    
+    # --- LIMPIEZA Y FILTRO POR NIVELES ---
     niveles_validos = ['inicial', 'primaria', 'secundaria']
-    escuelas = escuelas[escuelas['Nivel'].str.contains('|'.join(niveles_validos), na=False)]
-
-    # Conteos globales
+    escuelas = escuelas[escuelas['Nivel'].str.lower().isin(niveles_validos)]
+    
+    # --- CONTEOS ---
     total = len(escuelas)
-    primarias = len(escuelas[escuelas['Nivel'].str.contains('primaria')])
-    secundarias = len(escuelas[escuelas['Nivel'].str.contains('secundaria')])
-
-    # Mostrar conteos
-    print(f"Total de Escuelas: {total}")
-    print(f"Escuelas Primarias: {primarias}")
-    print(f"Escuelas Secundarias: {secundarias}")
-
-    # Conteo por distrito
+    primarias = len(escuelas[escuelas['Nivel'].str.contains('primaria', case=False, na=False)])
+    secundarias = len(escuelas[escuelas['Nivel'].str.contains('secundaria', case=False, na=False)])
+    
+    # --- CONTEO POR DISTRITO ---
     conteo_distrito = escuelas.groupby('Distrito').size().reset_index(name='Total')
-    conteo_distrito = conteo_distrito.sort_values('Total', ascending=False).head(20)  # Top 20
-
-    # Gráfico de barras con estilo oscuro
-    plt.style.use('dark_background')
-    fig, ax = plt.subplots(figsize=(14, 6))
-    ax.bar(conteo_distrito['Distrito'], conteo_distrito['Total'], color='skyblue')
-    ax.set_title("Distribución por Distrito", fontsize=16, color='white')
-    ax.set_ylabel("Número de Escuelas", color='white')
+    conteo_distrito = conteo_distrito.sort_values('Total', ascending=False)
+    
+    # --- METRICAS EN COLUMNAS ---
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Total de Escuelas", total)
+    col2.metric("Escuelas Primarias", primarias)
+    col3.metric("Escuelas Secundarias", secundarias)
+    
+    # --- GRÁFICO DE BARRAS ---
+    st.markdown("<h3 style='color:white;'>Distribución por Distrito</h3>", unsafe_allow_html=True)
+    
+    fig, ax = plt.subplots(figsize=(12, 6))
+    bars = ax.bar(conteo_distrito['Distrito'], conteo_distrito['Total'], color='skyblue')
+    
+    # Estética dark
+    fig.patch.set_facecolor('#0E1117')
+    ax.set_facecolor('#0E1117')
+    ax.spines['bottom'].set_color('white')
+    ax.spines['left'].set_color('white')
+    ax.tick_params(colors='white')
     plt.xticks(rotation=90, color='white')
     plt.yticks(color='white')
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    ax.spines['left'].set_color('white')
-    ax.spines['bottom'].set_color('white')
+    ax.set_title('', color='white')
+    
     plt.tight_layout()
-    plt.show()
+    st.pyplot(fig)
 
 with tab5:
     st.header("📊 Distribución de secundarias en el departamento de Ica")
@@ -246,7 +252,7 @@ with tab5:
 
     # Filtrar solo los que están en el departamento de ICA
     filtered = filtered[filtered['Departamento'].str.upper() == 'ICA']
-    districts_ica = districts[districts['DEPARTAMEN'].str.upper() == 'ICA']
+    districts_ica = districts[districts['DEPARTAMENTO'].str.upper() == 'ICA']
 
     # Conteo por distrito dentro de Ica
     conteo = filtered.groupby('Ubigeo').size().reset_index(name='Total_Colegios')
