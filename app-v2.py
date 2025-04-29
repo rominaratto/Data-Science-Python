@@ -312,6 +312,10 @@ with tab5:
             fill=True,
             fill_opacity=0.2
         ).add_to(m)
+
+    center_lat=-14.08831
+    center_lon=-75.75128
+    
     # Círculo grande visual para "recorte" (fondo)
     folium.Circle(
         location=[center_lat, center_lon],
