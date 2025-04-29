@@ -192,7 +192,7 @@ with tab5:
     
     # --- FILTRAR SOLO ICA ---
     filtered_schools_1 = schools_geo[
-        schools_geo['Departamento'].str.upper().str.contains('ICA', na=False)
+        schools_geo['Departamento'].str.upper() == 'ICA'
     ]
     escuelas = filtered_schools_1.copy()
     
@@ -250,7 +250,7 @@ with tab5:
 
     # Filtrar solo los que están en el departamento de ICA
     filtered = filtered[filtered['Departamento'].str.upper() == 'ICA']
-    districts_ica = districts[districts['DEPARTAMENTO'].str.upper() == 'ICA']
+    districts_ica = districts[districts['DEPARTAMEN'].str.upper() == 'ICA']
 
     # Conteo por distrito dentro de Ica
     conteo = filtered.groupby('Ubigeo').size().reset_index(name='Total_Colegios')
