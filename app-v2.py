@@ -187,8 +187,6 @@ with tab4:
 # ============================================================
 
 with tab5:
-
-with tab5:
     # --- CONFIGURACIÓN DE STREAMLIT ---
     st.markdown("<h1 style='color:white;'>📊 Descripción de los Datos</h1>", unsafe_allow_html=True)
     
@@ -289,113 +287,112 @@ with tab5:
  
 with tab5:
     st.header("📊 Panorama escolar en Ica: Identificación de escuelas primarias con mayor y menor cantidad de escuelas secundarias cerca")
+        
+    # Filtrar solo Ica
+    primarias_ica = schools_geo[
+        (schools_geo['Nivel'].str.contains("primaria", case=False, na=False)) &
+        (schools_geo['Departamento'].str.upper() == 'ICA')
+    ].copy()
+    
+    secundarias_ica = schools_geo[
+        (schools_geo['Nivel'].str.contains("secundaria", case=False, na=False)) &
+        (schools_geo['Departamento'].str.upper() == 'ICA')
+    ].copy()
+    
+    # Crear geometría
+    primarias_ica = primarias_ica.set_geometry(gpd.points_from_xy(primarias_ica.Longitud, primarias_ica.Latitud)).set_crs(epsg=4326).to_crs(epsg=32718)
+    secundarias_ica = secundarias_ica.set_geometry(gpd.points_from_xy(secundarias_ica.Longitud, secundarias_ica.Latitud)).set_crs(epsg=4326).to_crs(epsg=32718)
+    
+    # Crear buffer de 5km
+    primarias_ica['buffer_5km'] = primarias_ica.geometry.buffer(5000)
+    
+    # Contar secundarias dentro del buffer
+    primarias_ica['conteo_secundarias'] = primarias_ica['buffer_5km'].apply(
+        lambda buf: secundarias_ica[secundarias_ica.geometry.within(buf)].shape[0]
+    )
+    
+    # Identificar primaria con más y menos secundarias cercanas
+    primaria_max = primarias_ica.loc[primarias_ica['conteo_secundarias'].idxmax()]
+    primaria_min = primarias_ica.loc[primarias_ica['conteo_secundarias'].idxmin()]
+    
+    # Volver a lat/lon
+    primarias_ica = primarias_ica.to_crs(epsg=4326)
+    secundarias_ica = secundarias_ica.to_crs(epsg=4326)
     
     
-# Filtrar solo Ica
-primarias_ica = schools_geo[
-    (schools_geo['Nivel'].str.contains("primaria", case=False, na=False)) &
-    (schools_geo['Departamento'].str.upper() == 'ICA')
-].copy()
-
-secundarias_ica = schools_geo[
-    (schools_geo['Nivel'].str.contains("secundaria", case=False, na=False)) &
-    (schools_geo['Departamento'].str.upper() == 'ICA')
-].copy()
-
-# Crear geometría
-primarias_ica = primarias_ica.set_geometry(gpd.points_from_xy(primarias_ica.Longitud, primarias_ica.Latitud)).set_crs(epsg=4326).to_crs(epsg=32718)
-secundarias_ica = secundarias_ica.set_geometry(gpd.points_from_xy(secundarias_ica.Longitud, secundarias_ica.Latitud)).set_crs(epsg=4326).to_crs(epsg=32718)
-
-# Crear buffer de 5km
-primarias_ica['buffer_5km'] = primarias_ica.geometry.buffer(5000)
-
-# Contar secundarias dentro del buffer
-primarias_ica['conteo_secundarias'] = primarias_ica['buffer_5km'].apply(
-    lambda buf: secundarias_ica[secundarias_ica.geometry.within(buf)].shape[0]
-)
-
-# Identificar primaria con más y menos secundarias cercanas
-primaria_max = primarias_ica.loc[primarias_ica['conteo_secundarias'].idxmax()]
-primaria_min = primarias_ica.loc[primarias_ica['conteo_secundarias'].idxmin()]
-
-# Volver a lat/lon
-primarias_ica = primarias_ica.to_crs(epsg=4326)
-secundarias_ica = secundarias_ica.to_crs(epsg=4326)
-
-
-# Filtrar solo Ica
-primarias_ica = schools_geo[
-    (schools_geo['Nivel'].str.contains("primaria", case=False, na=False)) &
-    (schools_geo['Departamento'].str.upper() == 'ICA')
-].copy()
-
-secundarias_ica = schools_geo[
-    (schools_geo['Nivel'].str.contains("secundaria", case=False, na=False)) &
-    (schools_geo['Departamento'].str.upper() == 'ICA')
-].copy()
-
-# Crear geometría
-primarias_ica = primarias_ica.set_geometry(gpd.points_from_xy(primarias_ica.Longitud, primarias_ica.Latitud)).set_crs(epsg=4326).to_crs(epsg=32718)
-secundarias_ica = secundarias_ica.set_geometry(gpd.points_from_xy(secundarias_ica.Longitud, secundarias_ica.Latitud)).set_crs(epsg=4326).to_crs(epsg=32718)
-
-# Crear buffer de 5km
-primarias_ica['buffer_5km'] = primarias_ica.geometry.buffer(5000)
-
-# Contar secundarias dentro del buffer
-primarias_ica['conteo_secundarias'] = primarias_ica['buffer_5km'].apply(
-    lambda buf: secundarias_ica[secundarias_ica.geometry.within(buf)].shape[0]
-)
-
-# Identificar primaria con más y menos secundarias cercanas
-primaria_max = primarias_ica.loc[primarias_ica['conteo_secundarias'].idxmax()]
-primaria_min = primarias_ica.loc[primarias_ica['conteo_secundarias'].idxmin()]
-
-# Volver a lat/lon
-primarias_ica = primarias_ica.to_crs(epsg=4326)
-secundarias_ica = secundarias_ica.to_crs(epsg=4326)
-
-# Crear mapa centrado en Ica
-m = folium.Map(location=[-14.07, -75.73], zoom_start=8, tiles='CartoDB positron')
-
-# Agregar buffers como círculos
-for _, row in primarias_ica.iterrows():
-    folium.Circle(
-        location=[row.geometry.y, row.geometry.x],
-        radius=5000,
-        color='red',
-        fill=True,
-        fill_opacity=0.2
+    # Filtrar solo Ica
+    primarias_ica = schools_geo[
+        (schools_geo['Nivel'].str.contains("primaria", case=False, na=False)) &
+        (schools_geo['Departamento'].str.upper() == 'ICA')
+    ].copy()
+    
+    secundarias_ica = schools_geo[
+        (schools_geo['Nivel'].str.contains("secundaria", case=False, na=False)) &
+        (schools_geo['Departamento'].str.upper() == 'ICA')
+    ].copy()
+    
+    # Crear geometría
+    primarias_ica = primarias_ica.set_geometry(gpd.points_from_xy(primarias_ica.Longitud, primarias_ica.Latitud)).set_crs(epsg=4326).to_crs(epsg=32718)
+    secundarias_ica = secundarias_ica.set_geometry(gpd.points_from_xy(secundarias_ica.Longitud, secundarias_ica.Latitud)).set_crs(epsg=4326).to_crs(epsg=32718)
+    
+    # Crear buffer de 5km
+    primarias_ica['buffer_5km'] = primarias_ica.geometry.buffer(5000)
+    
+    # Contar secundarias dentro del buffer
+    primarias_ica['conteo_secundarias'] = primarias_ica['buffer_5km'].apply(
+        lambda buf: secundarias_ica[secundarias_ica.geometry.within(buf)].shape[0]
+    )
+    
+    # Identificar primaria con más y menos secundarias cercanas
+    primaria_max = primarias_ica.loc[primarias_ica['conteo_secundarias'].idxmax()]
+    primaria_min = primarias_ica.loc[primarias_ica['conteo_secundarias'].idxmin()]
+    
+    # Volver a lat/lon
+    primarias_ica = primarias_ica.to_crs(epsg=4326)
+    secundarias_ica = secundarias_ica.to_crs(epsg=4326)
+    
+    # Crear mapa centrado en Ica
+    m = folium.Map(location=[-14.07, -75.73], zoom_start=8, tiles='CartoDB positron')
+    
+    # Agregar buffers como círculos
+    for _, row in primarias_ica.iterrows():
+        folium.Circle(
+            location=[row.geometry.y, row.geometry.x],
+            radius=5000,
+            color='red',
+            fill=True,
+            fill_opacity=0.2
+        ).add_to(m)
+        
+    # Marcador para mi colegio
+    folium.Marker(
+        location=[-14.08831, -75.75128],
+        popup=folium.Popup("<b>IE: DE LA CRUZ</b><br>Distrito: ICA<br>Nivel: Secundaria<br>Gestión: Privada", max_width=250),
+        icon=folium.Icon(color='blue', icon='graduation-cap', prefix='fa')
     ).add_to(m)
     
-# Marcador para mi colegio
-folium.Marker(
-    location=[-14.08831, -75.75128],
-    popup=folium.Popup("<b>IE: DE LA CRUZ</b><br>Distrito: ICA<br>Nivel: Secundaria<br>Gestión: Privada", max_width=250),
-    icon=folium.Icon(color='blue', icon='graduation-cap', prefix='fa')
-).add_to(m)
-
-# Marcador para la primaria con más secundarias
-folium.Marker(
-    location=[-14.07166, -75.72748],
-    popup=folium.Popup(
-        f"<b>Escuela con MÁS secundarias cercanas:</b><br>"
-        f"{primaria_max['Código Modular']}<br>Conteo: {primaria_max['conteo_secundarias']}", max_width=250
-    ),
-    icon=folium.Icon(color="green", icon="arrow-up", prefix='fa')
-).add_to(m)
-
-# Marcador para la primaria con menos secundarias
-folium.Marker(
-    location=[-13.87274, -76.00486],
-    popup=folium.Popup(
-        f"<b>Escuela con MENOS secundarias cercanas:</b><br>"
-        f"{primaria_min['Código Modular']}<br>Conteo: {primaria_min['conteo_secundarias']}", max_width=250
-    ),
-    icon=folium.Icon(color="purple", icon="arrow-down", prefix='fa')
-).add_to(m)
-
-# Mostrar mapa
-m
+    # Marcador para la primaria con más secundarias
+    folium.Marker(
+        location=[-14.07166, -75.72748],
+        popup=folium.Popup(
+            f"<b>Escuela con MÁS secundarias cercanas:</b><br>"
+            f"{primaria_max['Código Modular']}<br>Conteo: {primaria_max['conteo_secundarias']}", max_width=250
+        ),
+        icon=folium.Icon(color="green", icon="arrow-up", prefix='fa')
+    ).add_to(m)
+    
+    # Marcador para la primaria con menos secundarias
+    folium.Marker(
+        location=[-13.87274, -76.00486],
+        popup=folium.Popup(
+            f"<b>Escuela con MENOS secundarias cercanas:</b><br>"
+            f"{primaria_min['Código Modular']}<br>Conteo: {primaria_min['conteo_secundarias']}", max_width=250
+        ),
+        icon=folium.Icon(color="purple", icon="arrow-down", prefix='fa')
+    ).add_to(m)
+    
+    # Mostrar mapa
+    m
     
     
     
